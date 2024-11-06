@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>$RNT Real Nigger Memes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #000;
+      margin: 0;
+      padding: 20px;
+      overflow: auto;
+      height: 100%;
+      position: relative;
+    }
+    h1 {
+      color: #00FF41;
+      z-index: 2;
+      position: relative;
+    }
+    #meme-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+      align-items: center;
+      z-index: 2;
+      position: relative;
+    }
+    input[type="text"] {
+      padding: 5px;
+      font-size: 16px;
+      width: 250px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #meme-canvas {
+      border: 1px solid #fff;
+      cursor: default;
+      margin-top: 20px;
+      z-index: 2;
+      position: relative;
+    }
+    #overlay-image {
+      width: 250px;
+      height: auto;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 3;
+    }
+    #contract-address {
+      color: #fff;
+      font-size: 14px;
+      margin-bottom: 20px;
+      z-index: 2;
+      position: relative;
+      text-align: center;
+    }
+    #save-instruction {
+      color: #fff;
+      margin-top: 10px;
+      z-index: 2;
+      position: relative;
+    }
+    #matrix-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="matrix-canvas"></canvas>
+  <h1>$RNT Real Nigger Memes</h1>
+  <img id="overlay-image" src="https://i.imgur.com/15q64b0.png" alt="Default Overlay">
+  
+  <!-- Contract Address Text -->
+  <div id="contract-address">$RNT Contract Address: 2fUFhZyd47Mapv9wcfXh5gnQwFXtqcYu9xAN4THBpump</div>
+  
+  <form id="meme-form">
+    <input type="file" id="image-input" accept="image/*" required>
+    <input type="text" id="top-text" placeholder="Top Text">
+    <input type="text" id="bottom-text" placeholder="Bottom Text">
+    <button type="submit">Create Meme</button>
+  </form>
+
+  <canvas id="meme-canvas" width="500" height="500"></canvas>
+  <div id="save-instruction">Right-click on the canvas and select "Save Image As..." to download.</div>
+
+  <script>
+    const defaultOverlayURL = 'https://i.imgur.com/15q64b0.png';
+
+    // Matrix Background Effect
+    const matrixCanvas = document.getElementById('matrix-canvas');
+    const ctxMatrix = matrixCanvas.getContext('2d');
+
+    // Resize the matrix canvas to fill the screen
+    function resizeCanvas() {
+      matrixCanvas.width = window.innerWidth;
+      matrixCanvas.height = document.body.scrollHeight; // Set to the full height of the document
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const text = 'REAL NIGGER TATE';
+    const fontSize = 16;
+    const columns = matrixCanvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+      ctxMatrix.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctxMatrix.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+
+      ctxMatrix.fillStyle = '#00FF41';
+      ctxMatrix.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const textChar = text[Math.floor(Math.random() * text.length)];
+        ctxMatrix.fillText(textChar, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+
+        drops[i]++;
+      }
+    }
+
+    setInterval(drawMatrix, 50);
+
+    // Meme Generator Code
+    document.getElementById('meme-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const memeCanvas = document.getElementById('meme-canvas');
+      const ctx = memeCanvas.getContext('2d');
+      const imageInput = document.getElementById('image-input');
+      const topText = document.getElementById('top-text').value;
+      const bottomText = document.getElementById('bottom-text').value;
+
+      let baseImage = new Image();
+      baseImage.src = URL.createObjectURL(imageInput.files[0]);
+
+      let overlayImage = new Image();
+      overlayImage.src = defaultOverlayURL;
+
+      let overlayX = 20, overlayY = 20;
+      let overlayWidth = 150, overlayHeight = 150;
+      let overlayRotation = 0;
+      let isDragging = false, isResizing = false, isRotating = false;
+      let isOverlaySelected = false;
+      let dragOffsetX = 0, dragOffsetY = 0;
+
+      baseImage.onload = () => {
+        memeCanvas.width = baseImage.width;
+        memeCanvas.height = baseImage.height;
+        ctx.clearRect(0, 0, memeCanvas.width, memeCanvas.height);
+        drawMeme();
+        overlayImage.onload = () => drawOverlay();
+      };
+
+      function drawMeme() {
+        ctx.clearRect(0, 0, memeCanvas.width, memeCanvas.height);
+        ctx.drawImage(baseImage, 0, 0);
+        drawText();
+        drawOverlay();
+      }
+
+      function drawText() {
+        ctx.font = '60px Impact';
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 5;
+        ctx.textAlign = 'center';
+        ctx.fillText(topText, memeCanvas.width / 2, 80);
+        ctx.strokeText(topText, memeCanvas.width / 2, 80);
+        ctx.fillText(bottomText, memeCanvas.width / 2, memeCanvas.height - 20);
+        ctx.strokeText(bottomText, memeCanvas.width / 2, memeCanvas.height - 20);
+      }
+
+      function drawOverlay() {
+        ctx.save();
+        ctx.translate(overlayX + overlayWidth / 2, overlayY + overlayHeight / 2);
+        ctx.rotate(overlayRotation);
+        ctx.drawImage(overlayImage, -overlayWidth / 2, -overlayHeight / 2, overlayWidth, overlayHeight);
+        ctx.restore();
+
+        if (isOverlaySelected) {
+          ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+          ctx.fillRect(overlayX + overlayWidth - 5, overlayY + overlayHeight - 5, 10, 10);
+
+          ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+          ctx.fillRect(overlayX + overlayWidth / 2 - 5, overlayY - 20, 10, 10);
+        }
+      }
+
+      function isMouseOnOverlay(x, y) {
+        const rotatedX = (x - overlayX - overlayWidth / 2) * Math.cos(-overlayRotation) - (y - overlayY - overlayHeight / 2) * Math.sin(-overlayRotation) + overlayX + overlayWidth / 2;
+        const rotatedY = (x - overlayX - overlayWidth / 2) * Math.sin(-overlayRotation) + (y - overlayY - overlayHeight / 2) * Math.cos(-overlayRotation) + overlayY + overlayHeight / 2;
+        return rotatedX >= overlayX && rotatedX <= overlayX + overlayWidth &&
+               rotatedY >= overlayY && rotatedY <= overlayY + overlayHeight;
+      }
+
+      memeCanvas.addEventListener('mousedown', (e) => {
+        const mouseX = e.offsetX;
+        const mouseY = e.offsetY;
+
+        if (mouseX >= overlayX + overlayWidth - 10 && mouseY >= overlayY + overlayHeight - 10) {
+          isResizing = true;
+          isOverlaySelected = true;
+        } else if (mouseX >= overlayX + overlayWidth / 2 - 10 && mouseX <= overlayX + overlayWidth / 2 + 10 &&
+                   mouseY >= overlayY - 20 && mouseY <= overlayY - 10) {
+          isRotating = true;
+          isOverlaySelected = true;
+        } else if (isMouseOnOverlay(mouseX, mouseY)) {
+          isDragging = true;
+          isOverlaySelected = true;
+          dragOffsetX = mouseX - overlayX;
+          dragOffsetY = mouseY - overlayY;
+        } else {
+          isOverlaySelected = false;
+        }
+        drawMeme();
+      });
+
+      memeCanvas.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          overlayX = e.offsetX - dragOffsetX;
+          overlayY = e.offsetY - dragOffsetY;
+          drawMeme();
+        } else if (isResizing) {
+          overlayWidth = e.offsetX - overlayX;
+          overlayHeight = e.offsetY - overlayY;
+          drawMeme();
+        } else if (isRotating) {
+          const angle = Math.atan2(e.offsetY - overlayY - overlayHeight / 2, e.offsetX - overlayX - overlayWidth / 2);
+          overlayRotation = angle;
+          drawMeme();
+        }
+      });
+
+      memeCanvas.addEventListener('mouseup', () => {
+        isDragging = false;
+        isResizing = false;
+        isRotating = false;
+        drawMeme();
+      });
+    });
+  </script>
+</body>
+</html>
