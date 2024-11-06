@@ -31,15 +31,20 @@
       z-index: 2;
       position: relative;
     }
-    input[type="text"] {
-      padding: 5px;
+    input[type="text"], input[type="file"] {
+      padding: 10px;
       font-size: 16px;
-      width: 250px;
+      width: 100%;
+      max-width: 300px;
+      box-sizing: border-box;
     }
     button {
-      padding: 10px 20px;
+      padding: 12px 24px;
       font-size: 16px;
       cursor: pointer;
+      width: 100%;
+      max-width: 300px;
+      box-sizing: border-box;
     }
     #meme-canvas {
       border: 1px solid #fff;
@@ -47,9 +52,12 @@
       margin-top: 20px;
       z-index: 2;
       position: relative;
+      width: 100%;
+      max-width: 500px;
     }
     #overlay-image {
-      width: 250px;
+      width: 100%;
+      max-width: 250px;
       height: auto;
       margin-bottom: 10px;
       position: relative;
@@ -62,6 +70,7 @@
       z-index: 2;
       position: relative;
       text-align: center;
+      word-wrap: break-word;
     }
     #save-instruction {
       color: #fff;
@@ -75,6 +84,18 @@
       left: 0;
       z-index: 1;
       pointer-events: none;
+    }
+    /* Media queries for smaller screens */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 24px;
+      }
+      #meme-canvas {
+        max-width: 100%;
+      }
+      #overlay-image {
+        max-width: 200px;
+      }
     }
   </style>
 </head>
@@ -233,28 +254,57 @@
         drawMeme();
       });
 
-      memeCanvas.addEventListener('mousemove', (e) => {
+      // Mobile event listeners
+      memeCanvas.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        const mouseX = touch.clientX - memeCanvas.offsetLeft;
+        const mouseY = touch.clientY - memeCanvas.offsetTop;
+
+        if (mouseX >= overlayX + overlayWidth - 10 && mouseY >= overlayY + overlayHeight - 10) {
+          isResizing = true;
+          isOverlaySelected = true;
+        } else if (mouseX >= overlayX + overlayWidth / 2 - 10 && mouseX <= overlayX + overlayWidth / 2 + 10 &&
+                   mouseY >= overlayY - 20 && mouseY <= overlayY - 10) {
+          isRotating = true;
+          isOverlaySelected = true;
+        } else if (isMouseOnOverlay(mouseX, mouseY)) {
+          isDragging = true;
+          isOverlaySelected = true;
+          dragOffsetX = mouseX - overlayX;
+          dragOffsetY = mouseY - overlayY;
+        } else {
+          isOverlaySelected = false;
+        }
+        drawMeme();
+      });
+
+      memeCanvas.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        const mouseX = touch.clientX - memeCanvas.offsetLeft;
+        const mouseY = touch.clientY - memeCanvas.offsetTop;
+
         if (isDragging) {
-          overlayX = e.offsetX - dragOffsetX;
-          overlayY = e.offsetY - dragOffsetY;
+          overlayX = mouseX - dragOffsetX;
+          overlayY = mouseY - dragOffsetY;
           drawMeme();
         } else if (isResizing) {
-          overlayWidth = e.offsetX - overlayX;
-          overlayHeight = e.offsetY - overlayY;
+          overlayWidth = mouseX - overlayX;
+          overlayHeight = mouseY - overlayY;
           drawMeme();
         } else if (isRotating) {
-          const angle = Math.atan2(e.offsetY - overlayY - overlayHeight / 2, e.offsetX - overlayX - overlayWidth / 2);
+          const angle = Math.atan2(mouseY - overlayY - overlayHeight / 2, mouseX - overlayX - overlayWidth / 2);
           overlayRotation = angle;
           drawMeme();
         }
       });
 
-      memeCanvas.addEventListener('mouseup', () => {
+      memeCanvas.addEventListener('touchend', () => {
         isDragging = false;
         isResizing = false;
         isRotating = false;
         drawMeme();
       });
+
     });
   </script>
 </body>
